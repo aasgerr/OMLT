@@ -249,16 +249,15 @@ def _add_gdp_formulation_to_block(
     )
 
     # Ouptuts are automatically scaled based on whether inputs are scaled
-    block.outputs.setub(unscaled_output_bounds[1])
-    block.outputs.setlb(unscaled_output_bounds[0])
-    block.scaled_outputs.setub(scaled_output_bounds[1])
-    block.scaled_outputs.setlb(scaled_output_bounds[0])
-
     if model_definition.is_scaled is True:
+        block.scaled_outputs.setub(scaled_output_bounds[1])
+        block.scaled_outputs.setlb(scaled_output_bounds[0])
         block.intermediate_output = pe.Var(
             tree_ids, bounds=(scaled_output_bounds[0], scaled_output_bounds[1])
         )
     else:
+        block.outputs.setub(unscaled_output_bounds[1])
+        block.outputs.setlb(unscaled_output_bounds[0])
         block.intermediate_output = pe.Var(
             tree_ids, bounds=(unscaled_output_bounds[0], unscaled_output_bounds[1])
         )
@@ -334,10 +333,14 @@ def _add_hybrid_formulation_to_block(block, model_definition, input_vars, output
     )
 
     # Ouptuts are automatically scaled based on whether inputs are scaled
-    block.outputs.setub(scaled_output_bounds[1])
-    block.outputs.setlb(scaled_output_bounds[0])
-    block.scaled_outputs.setub(unscaled_output_bounds[1])
-    block.scaled_outputs.setlb(unscaled_output_bounds[0])
+    if model_definition.is_scaled is True:
+        block.scaled_outputs.setub(scaled_output_bounds[1])
+        block.scaled_outputs.setlb(scaled_output_bounds[0])
+        
+    else:
+        block.outputs.setub(unscaled_output_bounds[1])
+        block.outputs.setlb(unscaled_output_bounds[0])
+        
 
     # Create the intermeditate variables. z is binary that indicates which leaf
     # in tree t is returned. intermediate_output is the output of tree t and

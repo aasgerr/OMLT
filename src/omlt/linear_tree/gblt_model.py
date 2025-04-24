@@ -30,6 +30,7 @@ class EnsembleDefinition:
         self.__model = gblt_model
         self.__scaling_object = scaling_object
 
+        is_scaled = True
         # Process input bounds to insure scaled input bounds exist for formulations
         if scaled_input_bounds is None:
             if unscaled_input_bounds is not None and scaling_object is not None:
@@ -48,6 +49,7 @@ class EnsembleDefinition:
             # input bounds = unscaled input bounds
             elif unscaled_input_bounds is not None and scaling_object is None:
                 scaled_input_bounds = unscaled_input_bounds
+                is_scaled = False
             elif unscaled_input_bounds is None:
                 raise ValueError(
                     "Input Bounds needed to represent linear trees as MIPs"
@@ -55,13 +57,17 @@ class EnsembleDefinition:
 
         self.__unscaled_input_bounds = unscaled_input_bounds
         self.__scaled_input_bounds = scaled_input_bounds
+        self.__is_scaled = is_scaled
 
         n_inputs = _find_n_inputs(gblt_model)
         self.__n_inputs = n_inputs
         self.__n_outputs = 1
+
         self.__splits, self.__leaves, self.__thresholds =\
             _parse_model(gblt_model, scaled_input_bounds, n_inputs)
-    
+
+        
+
     @property
     def scaling_object(self):
         """Returns scaling object"""
@@ -71,6 +77,16 @@ class EnsembleDefinition:
     def scaled_input_bounds(self):
         """Returns dict containing scaled input bounds"""
         return self.__scaled_input_bounds
+    
+    @property
+    def unscaled_input_bounds(self):
+        """Returns dict containing unscaled input bounds"""
+        return self.__unscaled_input_bounds
+    
+    @property
+    def is_scaled(self):
+        """Returns bool indicating whether model is scaled"""
+        return self.__is_scaled
 
     @property
     def splits(self):
